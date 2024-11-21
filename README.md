@@ -16,7 +16,7 @@ This repository contains an File Upload and Data Extraction System built as part
 
 ### Backend
 - API endpoints for listing files and retrieving file details.
-- API for uploading a file.
+- API for uploading a file or multiple.
 
 ## Users to use 
 -{ id: 1, email: 'karimebrahim328@gmail.com', password: 'password1' }
