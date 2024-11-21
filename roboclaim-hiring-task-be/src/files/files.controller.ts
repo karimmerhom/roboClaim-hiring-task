@@ -8,8 +8,9 @@ import {
   Request,
   Get,
   Param,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express'; 
+import { FilesInterceptor } from '@nestjs/platform-express'; 
 import { FilesService } from './files.service';  
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -32,20 +33,21 @@ export class FilesController {
    */
   @UseGuards(AuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('file')) 
-  async uploadFile(@Request() req, @UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No file uploaded.');
+  @UseInterceptors(FilesInterceptor('files')) // Accept multiple files
+  async uploadFiles(@Request() req, @UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files uploaded.');
     }
 
-    const result = await this.filesService.processFile(req.user.id, file);
+    const results = await Promise.all(
+      files.map((file) => this.filesService.processFile(req.user.id, file))
+    );
 
     return {
-      message: 'File processed successfully.',
-      data: result,
+      message: 'Files processed successfully.',
+      data: results,
     };
   }
-
   /**
    * Retrieves all files uploaded by the authenticated user.
    *

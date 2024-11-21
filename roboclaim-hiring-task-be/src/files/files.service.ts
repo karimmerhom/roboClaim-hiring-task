@@ -82,6 +82,7 @@
           metadata: data.info || null,
         };
       } catch (error) {
+        console.log(error)
         throw new BadRequestException('Error extracting text and metadata from PDF.');
       }
     }
