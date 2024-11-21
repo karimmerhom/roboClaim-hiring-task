@@ -12,11 +12,12 @@ import {
   Input,
   FormControl,
   FormErrorMessage,
+  VStack,
 } from "@chakra-ui/react";
-import { uploadFile } from "@/api/files";
+import { uploadFiles } from "@/api/files"; 
 
 const FileUploadModal = ({ isOpen, onClose, onUpload }) => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef(null);
@@ -24,43 +25,45 @@ const FileUploadModal = ({ isOpen, onClose, onUpload }) => {
   const validFileTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && validFileTypes.includes(selectedFile.type)) {
-      setFile(selectedFile);
-      setError("");
-    } else {
-      setError("Invalid file type. Only PDF, JPG, PNG, or JPEG files are allowed.");
-      setFile(null);
+    const selectedFiles = Array.from(e.target.files);
+    const invalidFiles = selectedFiles.filter(
+      (file) => !validFileTypes.includes(file.type)
+    );
+
+    if (invalidFiles.length > 0) {
+      setError("Some files have invalid types. Only PDF, JPG, PNG, or JPEG files are allowed.");
+      return;
     }
+
+    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+    setError("");
   };
 
   const handleFileUpload = async () => {
-    if (!file) {
-      setError("Please select a file before uploading.");
+    if (files.length === 0) {
+      setError("Please select at least one file before uploading.");
       return;
     }
     setIsUploading(true);
     try {
-      await uploadFile(file);
+      await uploadFiles(files);
       onUpload();
       handleClose();
-    } catch {
-      setError("An error occurred while uploading the file. Please try again.");
+    } catch(e) {
+      console.log(e)
+      setError("An error occurred while uploading the files. Please try again.");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleFileRemove = () => {
-    setFile(null);
+  const handleFileRemove = (fileToRemove) => {
+    setFiles((prevFiles) => prevFiles.filter((file) => file !== fileToRemove));
     setError("");
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
   };
 
   const handleClose = () => {
-    setFile(null);
+    setFiles([]);
     setError("");
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -72,12 +75,12 @@ const FileUploadModal = ({ isOpen, onClose, onUpload }) => {
     <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />
       <ModalContent bg="background.secondary">
-        <ModalHeader color="text.primary">Upload File</ModalHeader>
+        <ModalHeader color="text.primary">Upload Files</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormControl isInvalid={!!error}>
             <Text color="text.secondary" mb={2}>
-              Choose a file to upload (PDF, JPG, PNG, JPEG)
+              Choose files to upload (PDF, JPG, PNG, JPEG)
             </Text>
             <Input
               type="file"
@@ -86,6 +89,7 @@ const FileUploadModal = ({ isOpen, onClose, onUpload }) => {
               display="none"
               id="file-upload"
               ref={inputRef}
+              multiple
             />
             <Button
               as="label"
@@ -99,17 +103,27 @@ const FileUploadModal = ({ isOpen, onClose, onUpload }) => {
               _hover={{ bg: "button.backgroundColor" }}
               _active={{ bg: "button.backgroundColor" }}
             >
-              Choose File
+              Choose Files
             </Button>
-            {file && (
-              <div>
-                <Text color="text.secondary" mt={2} fontSize="sm">
-                  Selected File: {file.name}
-                </Text>
-                <Button mt={2} size="sm" variant="link" color="text.danger" onClick={handleFileRemove}>
-                  Remove File
-                </Button>
-              </div>
+            {files.length > 0 && (
+              <VStack align="start" mt={4} spacing={2}>
+                {files.map((file, index) => (
+                  <div key={index}>
+                    <Text color="text.secondary" fontSize="sm">
+                      {file.name}
+                    </Text>
+                    <Button
+                      mt={1}
+                      size="sm"
+                      variant="link"
+                      color="text.danger"
+                      onClick={() => handleFileRemove(file)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </VStack>
             )}
             {error && <FormErrorMessage>{error}</FormErrorMessage>}
           </FormControl>

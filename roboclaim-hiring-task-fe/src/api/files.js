@@ -12,10 +12,12 @@ export async function getFiles() {
     }
   }
 
-  export async function uploadFile(file) {
+  export async function uploadFiles(files) {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
       let response = await axios.post(baseUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
