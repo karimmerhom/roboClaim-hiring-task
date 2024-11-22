@@ -28,6 +28,8 @@ This repository contains an File Upload and Data Extraction System built as part
 ## Links
 - be: http://localhost:5000/
 - fe: http://localhost:3000/
+- deployed be: http://165.227.171.60:5000/
+- deployed fe: http://165.227.171.60:3000/
 
 ## Getting Started
 
