@@ -25,6 +25,10 @@ This repository contains an File Upload and Data Extraction System built as part
 ## Samples
 - Samples are available in folder samples for images and pdfs
 
+## Links
+- be: http://localhost:5000/
+- fe: http://localhost:3000/
+
 ## Getting Started
 
 To run the application locally using Docker, ensure that Docker and Docker Compose are installed on your machine. You can download them from [Docker's official website](https://www.docker.com/get-started).
