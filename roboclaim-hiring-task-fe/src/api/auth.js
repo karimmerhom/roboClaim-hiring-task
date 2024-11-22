@@ -32,7 +32,7 @@ export function setAuthToken(token) {
   }
 
   export async function saveTokens(accessToken) {
-    Cookies.set("access_token", accessToken, { path: "/", secure: true, expires: 7 });
+    Cookies.set("access_token", accessToken, { path: "/", secure: false, expires: 7 });
     localStorage.setItem("access_token", accessToken);
   }
 
